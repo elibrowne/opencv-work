@@ -33,4 +33,8 @@ cv2.waitKey(0)
 # NOT operator - invert the pixels in one image (no comparisons)
 bitwiseNOT = cv2.bitwise_not(circle)
 cv2.imshow("NOT Operator", bitwiseNOT)
+cv2.waitKey(0) 
+
+bitwiseNOT = cv2.bitwise_not(rectangle)
+cv2.imshow("NOT Operator w/ Rectangle", bitwiseNOT)
 cv2.waitKey(0)
