@@ -27,12 +27,34 @@ pyplot.title("Color Prominence in Selected Image")
 pyplot.xlabel("Bins")
 pyplot.ylabel("Num. Pixels")
 
+# "Accumulator" to determine which color is the least prominent
+# Because the color goes in B, G, R order "b" will always start as the smallest
+leastProminentColor = "b"
+leastProminentStrength = 2147483647 # largest possible integer
+
 # Loop over the channels and respective colors to make histogram with three lines
 for (channel, color) in zip(channels, colors):
 	# For each color, make a new histogram with said color and add it to the plot
 	histogram = cv2.calcHist([channel], [0], None, [256], [0, 256]) # just like grayscale b/c only one color is shown
+
+	# Calculate how much one color shows up in the image by looping over the histogram
+	totalColorWeight = 0
+	for i in range(255):
+		# Add the strength (0-255) multiplied by how many pixels have said strength
+		# That way, the strongest colors (most high strength) will have higher values
+		totalColorWeight += i * int(histogram[i])
+	
+	# If that color's strength is less than the least prominent strength...
+	if leastProminentStrength > totalColorWeight:
+		# ... it is the new least prominent color
+		leastProminentColor = color
+		# Update the least prominent color value so future checks work
+		leastProminentStrength = totalColorWeight
+	
+	# Draw the plot
 	pyplot.plot(histogram, color = color) # set the color of the histogram to match the color it reflects
 	pyplot.xlim([0, 256]) # set the bounds as RGB
 
 pyplot.show() # show the combined RGB histogram
 cv2.waitKey(0) 
+
