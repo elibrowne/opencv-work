@@ -16,7 +16,7 @@ args = vars(ap.parse_args())
 
 # Opening processes - save and display the original image
 image = cv2.imread(args["image"])
-cv2.imshow("Original Image", image)
+cv2.imshow("Original image", image)
 cv2.waitKey(0) 
 
 # Creating a histogram for RGB colors - making the histogram
@@ -58,3 +58,22 @@ for (channel, color) in zip(channels, colors):
 pyplot.show() # show the combined RGB histogram
 cv2.waitKey(0) 
 
+distinctColor = (0, 0, 0) # 'accumulator' for the color to draw in
+if leastProminentColor == "r":
+	distinctColor = (0, 0, 255) # red b/c BGR space
+elif leastProminentColor == "g":
+	distinctColor = (0, 255, 0)
+else:
+	distinctColor = (255, 0, 0) # if not red or green, then blue
+
+# Draw a random amount circles on the screen in order to mess up the image
+totalCircles = np.random.randint(5) + 10 # variable used to space circles
+height, width, _ = image.shape # get dimensions of shape (channels aren't relevant here)
+
+# Iterate to draw the circles
+for i in range(totalCircles):
+	if i != 0: # TODO fix this - I don't want the circles on the edges but this is a temporary solution
+		cv2.circle(image, (int((i / totalCircles) * width), np.random.randint(height)), (np.random.randint(10) + 5) * 2, distinctColor, -1)
+
+cv2.imshow("Image with drawn-on circles", image)
+cv2.waitKey(0)
