@@ -120,3 +120,9 @@ contoursFound = cv2.cvtColor(maskFinder, cv2.COLOR_GRAY2RGB) # convert to RGB so
 cv2.drawContours(contoursFound, contours, -1, (0, 0, 255), 2)
 cv2.imshow("Counted shapes", contoursFound)
 cv2.waitKey(0)
+
+# Inpaint the circles and display the "fixed" image
+inpaintedImage = cv2.inpaint(image, shapeMask, 3, cv2.INPAINT_TELEA)
+# Inpainting radius = 3, method = Telea method (more recent than Navier-stokes)
+cv2.imshow("Inpainted image", inpaintedImage)
+cv2.waitKey(0)
