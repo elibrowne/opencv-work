@@ -93,3 +93,10 @@ else:
 cv2.imshow("Masked for color detection", maskFinder)
 cv2.waitKey(0)
 
+# Use thresholding to create a mask for what needs to be inpainted
+# Binary thresh - all nonzero pixels are the ones that need to be fixed
+(T, shapeMask) = cv2.threshold(maskFinder, 254, 255, cv2.THRESH_BINARY) # 254 - only the most pure colors
+# This works because we drew our shapes with 255 r/g/b, meaning that they'll show up even with a 
+# very narrow qualification for what counts as a color.
+cv2.imshow("Mask for inpainting", shapeMask)
+cv2.waitKey(0)
