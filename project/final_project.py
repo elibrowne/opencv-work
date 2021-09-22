@@ -109,9 +109,14 @@ cv2.waitKey(0)
 # Count the amount of contours on a copy of the mask (this method is destructive)
 contours, _ = cv2.findContours(shapeMask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 print("There are " + str(len(contours)) + " shapes on this image.")
+if len(contours) == totalCircles - 1: 
+	print("CV2 counted an equal amount of circles as were drawn on by the code!")
+elif len(contours) > totalCircles - 1:
+	print("CV2 counted more contours than were drawn by it, meaning that there are little patches of every color on your image. Cool!")
 
 # Display the contours
-contoursFound = cv2.cvtColor(maskFinder, cv2.COLOR_GRAY2RGB)
+contoursFound = cv2.cvtColor(maskFinder, cv2.COLOR_GRAY2RGB) # convert to RGB so the circled contours show up as red
+# Circle the contours and then display them on the grayscale image
 cv2.drawContours(contoursFound, contours, -1, (0, 0, 255), 2)
 cv2.imshow("Counted shapes", contoursFound)
 cv2.waitKey(0)
