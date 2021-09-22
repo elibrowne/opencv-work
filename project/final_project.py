@@ -77,3 +77,19 @@ for i in range(totalCircles):
 
 cv2.imshow("Image with drawn-on circles", image)
 cv2.waitKey(0)
+
+# Split into color channels to find the drawn-on shapes
+
+(B, G, R) = cv2.split(image)
+maskFinder = image # "accumulator" 
+if leastProminentColor == "r":
+	maskFinder = R
+elif leastProminentColor == "g":
+	maskFinder = G
+else:
+	maskFinder = B
+
+# Display the image so the user sees how the colors are differentiated
+cv2.imshow("Masked for color detection", maskFinder)
+cv2.waitKey(0)
+
