@@ -72,8 +72,11 @@ height, width, _ = image.shape # get dimensions of shape (channels aren't releva
 
 # Iterate to draw the circles
 for i in range(totalCircles):
-	if i != 0: # TODO fix this - I don't want the circles on the edges but this is a temporary solution
-		cv2.circle(image, (int((i / totalCircles) * width), np.random.randint(height)), (np.random.randint(10) + 5) * 2, distinctColor, -1)
+	if i != 0: # no circles on the edges (x = 0 or x = total width)
+		cv2.circle(image, (int((i / totalCircles) * width), np.random.randint(height - 60) + 30), (np.random.randint(10) + 5) * 2, distinctColor, -1)
+
+print("Total circles drawn: " + str(totalCircles - 1)) # check if the counting code detected the right amount of circles later
+# Subtract one because the "first circle" at x = 0 is skipped
 
 cv2.imshow("Image with drawn-on circles", image)
 cv2.waitKey(0)
@@ -95,8 +98,20 @@ cv2.waitKey(0)
 
 # Use thresholding to create a mask for what needs to be inpainted
 # Binary thresh - all nonzero pixels are the ones that need to be fixed
-(T, shapeMask) = cv2.threshold(maskFinder, 254, 255, cv2.THRESH_BINARY) # 254 - only the most pure colors
+T, shapeMask = cv2.threshold(maskFinder, 254, 255, cv2.THRESH_BINARY) # 254 - only the most pure colors
 # This works because we drew our shapes with 255 r/g/b, meaning that they'll show up even with a 
 # very narrow qualification for what counts as a color.
 cv2.imshow("Mask for inpainting", shapeMask)
+cv2.waitKey(0)
+
+# Count however many circles there were and print to the console
+
+# Count the amount of contours on a copy of the mask (this method is destructive)
+contours, _ = cv2.findContours(shapeMask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+print("There are " + str(len(contours)) + " shapes on this image.")
+
+# Display the contours
+contoursFound = cv2.cvtColor(maskFinder, cv2.COLOR_GRAY2RGB)
+cv2.drawContours(contoursFound, contours, -1, (0, 0, 255), 2)
+cv2.imshow("Counted shapes", contoursFound)
 cv2.waitKey(0)
