@@ -133,7 +133,7 @@ cv2.destroyAllWindows() # reset the screen for the second part in which the user
 # Allow the user to draw on the image
 
 # Creating a named window allows for the callback method to work
-cv2.namedWindow("Draw with your mouse!") 
+cv2.namedWindow("Draw with your mouse! Finish and exit with space.") 
 # New image copy for the canvas
 canvasImage = originalImage.copy()
 # Global variables for drawing with the mouse
@@ -165,11 +165,11 @@ def drawWithMouse(event, x, y, flags, params):
 		cv2.line(canvasImage, (tempx, tempy), (x, y), distinctColor, 5)
 
 # Callback method - use window name to create a method that'll draw on the canvas
-cv2.setMouseCallback("Draw with your mouse!", drawWithMouse) 
+cv2.setMouseCallback("Draw with your mouse! Finish and exit with space.", drawWithMouse) 
 
 # Display the image (in an infinite loop)
 while True:
-	cv2.imshow("Draw with your mouse!", canvasImage)
+	cv2.imshow("Draw with your mouse! Finish and exit with space.", canvasImage)
 	# Conditions to break the loop and stop drawing
 	# Use waitKey(5) because waitKey(0) displays "0 ms" (stills only)
 	if cv2.waitKey(5) == 32: # space bar ASCII code
@@ -220,3 +220,5 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 # done!
+# Note: I guess the process of splitting, counting, and inpainting could've been combined into one method.
+# Were this code repeating the process a lot, I would've done so; here, I don't think it was worth it.s
