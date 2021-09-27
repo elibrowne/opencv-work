@@ -16,6 +16,7 @@ args = vars(ap.parse_args())
 
 # Opening processes - save and display the original image
 image = cv2.imread(args["image"])
+originalImage = image.copy() # save a copy for later
 cv2.imshow("Original image", image)
 cv2.waitKey(0) 
 
@@ -126,3 +127,96 @@ inpaintedImage = cv2.inpaint(image, shapeMask, 3, cv2.INPAINT_TELEA)
 # Inpainting radius = 3, method = Telea method (more recent than Navier-stokes)
 cv2.imshow("Inpainted image", inpaintedImage)
 cv2.waitKey(0)
+
+cv2.destroyAllWindows() # reset the screen for the second part in which the user can draw on the image
+
+# Allow the user to draw on the image
+
+# Creating a named window allows for the callback method to work
+cv2.namedWindow("Draw with your mouse!") 
+# New image copy for the canvas
+canvasImage = originalImage.copy()
+# Global variables for drawing with the mouse
+drawing = False	
+tempx = 0
+tempy = 0
+
+# Callback method - this will draw shapes on the canvas image based on user input
+def drawWithMouse(event, x, y, flags, params):
+	# Global variables are retained outside of the method
+	global tempx, tempy, drawing
+
+	# Use events to determine what to do on the canvas
+	if event == cv2.EVENT_LBUTTONDOWN:
+		# Mouse down - start drawing and set saved x and y for drawing
+		drawing = True
+		tempx, tempy = x, y
+	elif event == cv2.EVENT_MOUSEMOVE:
+		# Move the mouse - draw a 5 px line between that point and the previous point
+		if drawing:
+			# Use color to ensure the lines are distinct from the image
+			cv2.line(canvasImage, (tempx, tempy), (x, y), distinctColor, 5)
+			# Set the saved x and y to the current point to continue the line
+			tempx = x
+			tempy = y	
+	elif event == cv2.EVENT_LBUTTONUP:
+		# Mouse up - stop drawing and finish the line
+		drawing = False
+		cv2.line(canvasImage, (tempx, tempy), (x, y), distinctColor, 5)
+
+# Callback method - use window name to create a method that'll draw on the canvas
+cv2.setMouseCallback("Draw with your mouse!", drawWithMouse) 
+
+# Display the image (in an infinite loop)
+while True:
+	cv2.imshow("Draw with your mouse!", canvasImage)
+	# Conditions to break the loop and stop drawing
+	# Use waitKey(5) because waitKey(0) displays "0 ms" (stills only)
+	if cv2.waitKey(5) == 32: # space bar ASCII code
+		break 
+
+# Undergo the same editing processes as before to inpaint the image
+
+# Split into color channels to find the drawn-on shapes
+
+(B, G, R) = cv2.split(canvasImage) # new split needed of drawn-on image
+maskFinder = canvasImage # "accumulator" 
+# Use the same leastProminentColor variable as before; it's the same image
+if leastProminentColor == "r":
+	maskFinder = R
+elif leastProminentColor == "g":
+	maskFinder = G
+else:
+	maskFinder = B
+
+# Display the image so the user sees how the colors are differentiated
+cv2.imshow("Masked for color detection", maskFinder)
+cv2.waitKey(0)
+
+# Thresholding to find what needs to be inpainted
+T, shapeMask = cv2.threshold(maskFinder, 254, 255, cv2.THRESH_BINARY) # 254 - only the most pure colors
+# This works because we drew our shapes with 255 r/g/b, meaning that they'll show up even with a 
+# very narrow qualification for what counts as a color.
+cv2.imshow("Mask for inpainting", shapeMask)
+cv2.waitKey(0)
+
+# Count the amount of contours on a copy of the mask (this method is destructive)
+contours, _ = cv2.findContours(shapeMask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+print("There were " + str(len(contours)) + " shapes drawn on this image.")
+
+# Display the contours
+contoursFound = cv2.cvtColor(maskFinder, cv2.COLOR_GRAY2RGB) # convert to RGB so the circled contours show up as red
+# Circle the contours and then display them on the grayscale image
+cv2.drawContours(contoursFound, contours, -1, (0, 0, 255), 2)
+cv2.imshow("Counted lines", contoursFound)
+cv2.waitKey(0)
+
+# Inpaint the lines drawn and display the "fixed" image
+inpaintedImage = cv2.inpaint(canvasImage, shapeMask, 3, cv2.INPAINT_TELEA)
+# Inpainting radius = 3, method = Telea method (more recent than Navier-stokes)
+cv2.imshow("Inpainted image", inpaintedImage)
+cv2.waitKey(0)
+
+cv2.destroyAllWindows()
+
+# done!
